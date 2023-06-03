@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="Mur_Piscine_v1">
+    <static>true</static>
+    <link name="Mur1">
+      <inertial>
+        <mass>1000</mass>
+        <inertia>
+          <ixx>42416.67</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>2166.67</iyy>
+          <iyz>0</iyz>
+          <izz>40416.67</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1 22 5</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+            <box>
+                <size>1 22 5</size>
+            </box>
+        </geometry>
+        <material>
+            <ambient>0.4 0.1 0 1</ambient>
+            <diffuse>0.4 0.1 0 1</diffuse>
+            <specular>0.4 0.1 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <link name="Mur2">
+      <pose relative_to="Mur1">25.5 -10.5 0 0 0 0</pose>
+      <inertial>
+        <mass>1000</mass>
+        <inertia>
+          <ixx>2166.67</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>210417</iyy>
+          <iyz>0</iyz>
+          <izz>208416</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>50 1 5</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+            <box>
+                <size>50 1 5</size>
+            </box>
+        </geometry>
+        <material>
+            <ambient>0.4 0.1 0 1</ambient>
+            <diffuse>0.4 0.1 0 1</diffuse>
+            <specular>0.4 0.1 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Mur1_Mur2" type="fixed">
+      <parent>Mur1</parent>
+      <child>Mur2</child>
+    </joint>
+
+    <link name="Mur3">
+      <pose relative_to="Mur1">25.5 10.5 0 0 0 0</pose>
+      <inertial>
+        <mass>1000</mass>
+        <inertia>
+          <ixx>2166.67</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>210417</iyy>
+          <iyz>0</iyz>
+          <izz>208416</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>50 1 5</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+            <box>
+                <size>50 1 5</size>
+            </box>
+        </geometry>
+        <material>
+            <ambient>0.4 0.1 0 1</ambient>
+            <diffuse>0.4 0.1 0 1</diffuse>
+            <specular>0.4 0.1 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Mur1_Mur3" type="fixed">
+      <parent>Mur1</parent>
+      <child>Mur3</child>
+    </joint>
+
+    <link name="Mur4">
+      <pose relative_to="Mur1">51 0 0 0 0 0</pose>
+      <inertial>
+        <mass>1000</mass>
+        <inertia>
+          <ixx>42416.67</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>2166.67</iyy>
+          <iyz>0</iyz>
+          <izz>40416.67</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>1 22 5</size>
+          </box>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+            <box>
+                <size>1 22 5</size>
+            </box>
+        </geometry>
+        <material>
+            <ambient>0.4 0.1 0 1</ambient>
+            <diffuse>0.4 0.1 0 1</diffuse>
+            <specular>0.4 0.1 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Mur1_Mur4" type="fixed">
+      <parent>Mur1</parent>
+      <child>Mur4</child>
+    </joint>
+
+  </model>
+</sdf>

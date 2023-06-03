@@ -1,0 +1,633 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="SousMarin_Config1_v1">
+    <!-- Body -->
+    <link name="Chassis">
+      <inertial>
+        <mass>10</mass>
+        <inertia>
+          <ixx>1.825</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.825</iyy>
+          <iyz>0</iyz>
+          <izz>0.05</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="main_body">
+        <geometry>
+          <cylinder>
+            <radius>0.2</radius>
+            <length>0.6</length>
+          </cylinder>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+          <cylinder>
+            <radius>0.2</radius>
+            <length>0.6</length>
+          </cylinder>
+        </geometry>
+        <material>
+            <ambient>1 0.74 0 1</ambient>
+            <diffuse>1 0.74 0 1</diffuse>
+            <specular>1 0.74 0 1</specular>
+        </material>
+      </visual>
+
+      <sensor name="imu_sensor" type="imu">
+        <always_on>1</always_on>
+        <update_rate>250</update_rate>
+        <topic>imu</topic>
+        <visualize>true</visualize>
+        <imu>
+            <enable_orientation>0</enable_orientation>
+            <angular_velocity>
+                <x>
+                    <noise type="gaussian">
+                        <mean>0</mean>
+                        <stddev>0.009</stddev>
+                        <bias_mean>0.00075</bias_mean>
+                        <bias_stddev>0.005</bias_stddev>
+                        <dynamic_bias_stddev>0.00002</dynamic_bias_stddev>
+                        <dynamic_bias_correlation_time>400.0</dynamic_bias_correlation_time>
+                        <precision>0.00025</precision>
+                    </noise>
+                </x>
+                <y>
+                    <noise type="gaussian">
+                        <mean>0
+                        </mean>
+                        <stddev>0.009
+                        </stddev>
+                        <bias_mean>0.00075
+                        </bias_mean>
+                        <bias_stddev>0.005
+                        </bias_stddev>
+                        <dynamic_bias_stddev>0.00002
+                        </dynamic_bias_stddev>
+                        <dynamic_bias_correlation_time>400.0
+                        </dynamic_bias_correlation_time>
+                        <precision>0.00025
+                        </precision>
+                    </noise>
+                </y>
+                <z>
+                    <noise type="gaussian">
+                        <mean>0
+                        </mean>
+                        <stddev>0.009
+                        </stddev>
+                        <bias_mean>0.00075
+                        </bias_mean>
+                        <bias_stddev>0.005
+                        </bias_stddev>
+                        <dynamic_bias_stddev>0.00002
+                        </dynamic_bias_stddev>
+                        <dynamic_bias_correlation_time>400.0
+                        </dynamic_bias_correlation_time>
+                        <precision>0.00025
+                        </precision>
+                    </noise>
+                </z>
+            </angular_velocity>
+            <linear_acceleration>
+                <x>
+                    <noise type="gaussian">
+                        <mean>0
+                        </mean>
+                        <stddev>0.021
+                        </stddev>
+                        <bias_mean>0.05
+                        </bias_mean>
+                        <bias_stddev>0.0075
+                        </bias_stddev>
+                        <dynamic_bias_stddev>0.000375
+                        </dynamic_bias_stddev>
+                        <dynamic_bias_correlation_time>175.0
+                        </dynamic_bias_correlation_time>
+                        <precision>0.005
+                        </precision>
+                    </noise>
+                </x>
+                <y>
+                    <noise type="gaussian">
+                        <mean>0
+                        </mean>
+                        <stddev>0.021
+                        </stddev>
+                        <bias_mean>0.05
+                        </bias_mean>
+                        <bias_stddev>0.0075
+                        </bias_stddev>
+                        <dynamic_bias_stddev>0.000375
+                        </dynamic_bias_stddev>
+                        <dynamic_bias_correlation_time>175.0
+                        </dynamic_bias_correlation_time>
+                        <precision>0.005
+                        </precision>
+                    </noise>
+                </y>
+                <z>
+                    <noise type="gaussian">
+                        <mean>0
+                        </mean>
+                        <stddev>0.021
+                        </stddev>
+                        <bias_mean>0.05
+                        </bias_mean>
+                        <bias_stddev>0.0075
+                        </bias_stddev>
+                        <dynamic_bias_stddev>0.000375
+                        </dynamic_bias_stddev>
+                        <dynamic_bias_correlation_time>175.0
+                        </dynamic_bias_correlation_time>
+                        <precision>0.005
+                        </precision>
+                    </noise>
+                </z>
+            </linear_acceleration>
+        </imu>   
+      </sensor>
+
+      <sensor name="gps" type="navsat">
+          <always_on>1</always_on>
+          <update_rate>1</update_rate>
+          <topic>gps</topic>
+          <visualize>true</visualize>
+      </sensor>
+
+      <sensor name="magnetometer" type="magnetometer">
+          <always_on>1</always_on>
+          <update_rate>20</update_rate>
+          <topic>magnetometer</topic>
+          <visualize>true</visualize>
+          <magnetometer>
+              <x>
+                  <noise type="gaussian">
+                      <mean>0.000000080
+                      </mean>
+                      <bias_mean>0.000000400
+                      </bias_mean>
+                  </noise>
+              </x>
+              <y>
+                  <noise type="gaussian">
+                      <mean>0.000000080
+                      </mean>
+                      <bias_mean>0.000000400
+                      </bias_mean>
+                  </noise>
+              </y>
+              <z>
+                  <noise type="gaussian">
+                      <mean>0.000000080
+                      </mean>
+                      <bias_mean>0.000000400
+                      </bias_mean>
+                  </noise>
+              </z>
+          </magnetometer>
+      </sensor>
+
+      <sensor name="scan_omni" type="gpu_lidar">
+          <pose>0.21 0 0 0 0 0</pose>
+          <update_rate>10</update_rate>
+          <topic>gpu_lidar</topic>
+          <visualize>true</visualize>
+          <lidar>
+              <scan>
+                  <horizontal>
+                      <!-- Real samples value is 1800 -->
+                      <samples>1800
+                      </samples>
+                      <resolution>1
+                      </resolution>
+                      <min_angle>-3.141592654
+                      </min_angle>
+                      <max_angle>3.141592654
+                      </max_angle>
+                  </horizontal>
+                  <vertical>
+                      <samples>16
+                      </samples>
+                      <resolution>1
+                      </resolution>
+                      <min_angle>-0.261799388
+                      </min_angle>
+                      <max_angle>0.261799388
+                      </max_angle>
+                  </vertical>
+              </scan>
+              <range>
+                  <min>0.2
+                  </min>
+                  <max>100.0
+                  </max>
+                  <resolution>0.01
+                  </resolution>
+              </range>
+              <noise>
+                  <type>gaussian
+                  </type>
+                  <mean>0
+                  </mean>
+                  <!-- Change the sdfdev value to 0.01 to add noise in to the sensor. You can set other values if you want. -->
+                  <stddev>0.01
+                  </stddev>
+              </noise>
+          </lidar>
+          <always_on>false
+          </always_on>
+          <visualize>false
+          </visualize>
+      </sensor>
+
+      <sensor name="camera_front" type="camera">
+          <pose>0 0 0.3 0 -1.57 0</pose>
+          <always_on>1</always_on>
+          <update_rate>20</update_rate>
+          <topic>camera_front</topic>
+          <visualize>true</visualize>
+          <camera name="camera_front">
+              <!--<cameraInfoTopicName>camera_info</cameraInfoTopicName>-->
+              <!--<hackBaseline>0.07</hackBaseline>-->
+              <horizontal_fov>2</horizontal_fov>
+              <lens>
+                  <intrinsics>
+                    <!-- fx = fy = width / ( 2 * tan (hfov / 2 ) ) -->
+                    <fx>1108.5</fx>
+                    <fy>1108.5</fy>
+                    <!-- cx = ( width + 1 ) / 2 -->
+                    <cx>640.5</cx>
+                    <!-- cy = ( height + 1 ) / 2 -->
+                    <cy>480.5</cy>
+                    <s>0</s>
+                  </intrinsics>
+              </lens>
+              <distortion>
+                  <k1>0.0</k1>
+                  <k2>0.0</k2>
+                  <k3>0.0</k3>
+                  <p1>0.0</p1>
+                  <p2>0.0</p2>
+                  <center>0.5 0.5</center>
+              </distortion>
+              <image>
+                  <width>1280</width>
+                  <height>960</height>
+                  <format>R8G8B8</format>
+              </image>
+              <clip>
+                  <near>0.02</near>
+                  <far>300</far>
+              </clip>
+              <noise>
+                  <type>gaussian</type>
+                  <mean>0</mean>
+                  <stddev>0.007</stddev>
+              </noise>
+          </camera>
+      </sensor>
+
+    </link>
+
+    <link name="Moteur1">
+      <pose relative_to="Chassis">0 0.2 0.2 0.79 0 0</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>4.25E-3</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.25E-3</iyy>
+          <iyz>0</iyz>
+          <izz>8E-3</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.2 0.2 0.05</size>
+          </box>
+        </geometry>
+      </collision> 
+
+      <visual name= "visual">
+        <geometry>
+          <box>
+            <size>0.2 0.2 0.05</size>
+          </box>
+        </geometry>
+        <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>1 0 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Chassis_Moteur1" type="fixed">
+      <parent>Chassis</parent>
+      <child>Moteur1</child>
+    </joint>
+
+    <link name="Moteur2">
+      <pose relative_to="Chassis">0 0.2 -0.2 -0.79 0 0</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>4.25E-3</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.25E-3</iyy>
+          <iyz>0</iyz>
+          <izz>8E-3</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.2 0.2 0.05</size>
+          </box>
+        </geometry>
+      </collision> 
+
+      <visual name= "visual">
+        <geometry>
+          <box>
+            <size>0.2 0.2 0.05</size>
+          </box>
+        </geometry>
+        <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>1 0 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Chassis_Moteur2" type="fixed">
+      <parent>Chassis</parent>
+      <child>Moteur2</child>
+    </joint>
+
+    <link name="Moteur3">
+      <pose relative_to="Chassis">0 -0.2 -0.2 0.79 0 0</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>4.25E-3</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.25E-3</iyy>
+          <iyz>0</iyz>
+          <izz>8E-3</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.2 0.2 0.05</size>
+          </box>
+        </geometry>
+      </collision> 
+
+      <visual name= "visual">
+        <geometry>
+          <box>
+            <size>0.2 0.2 0.05</size>
+          </box>
+        </geometry>
+        <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>1 0 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Chassis_Moteur3" type="fixed">
+      <parent>Chassis</parent>
+      <child>Moteur3</child>
+    </joint>
+
+    <link name="Moteur4">
+      <pose relative_to="Chassis">0 -0.2 0.2 -0.79 0 0</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>4.25E-3</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.25E-3</iyy>
+          <iyz>0</iyz>
+          <izz>8E-3</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.2 0.2 0.05</size>
+          </box>
+        </geometry>
+      </collision> 
+
+      <visual name= "visual">
+        <geometry>
+          <box>
+            <size>0.2 0.2 0.05</size>
+          </box>
+        </geometry>
+        <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>1 0 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Chassis_Moteur4" type="fixed">
+      <parent>Chassis</parent>
+      <child>Moteur4</child>
+    </joint>
+
+    <link name="MoteurProf1">
+      <pose relative_to="Chassis">0 0.2 0.3 0 1.57 0</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>1.16E-3</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.16E-3</iyy>
+          <iyz>0</iyz>
+          <izz>2E-3</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.04</size>
+          </box>
+        </geometry>
+      </collision> 
+
+      <visual name= "visual">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.04</size>
+          </box>
+        </geometry>
+        <material>
+            <ambient>1 0.74 0 1</ambient>
+            <diffuse>1 0.74 0 1</diffuse>
+            <specular>1 0.74 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Chassis_MoteurProf1" type="fixed">
+      <parent>Chassis</parent>
+      <child>MoteurProf1</child>
+    </joint>
+
+    <link name="MoteurProf2">
+      <pose relative_to="Chassis">0 0.2 -0.3 0 1.57 0</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>1.16E-3</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.16E-3</iyy>
+          <iyz>0</iyz>
+          <izz>2E-3</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.04</size>
+          </box>
+        </geometry>
+      </collision> 
+
+      <visual name= "visual">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.04</size>
+          </box>
+        </geometry>
+        <material>
+            <ambient>1 0.74 0 1</ambient>
+            <diffuse>1 0.74 0 1</diffuse>
+            <specular>1 0.74 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Chassis_MoteurProf2" type="fixed">
+      <parent>Chassis</parent>
+      <child>MoteurProf2</child>
+    </joint>
+
+    <link name="MoteurProf3">
+      <pose relative_to="Chassis">0 -0.2 -0.3 0 1.57 0</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>1.16E-3</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.16E-3</iyy>
+          <iyz>0</iyz>
+          <izz>2E-3</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.04</size>
+          </box>
+        </geometry>
+      </collision> 
+
+      <visual name= "visual">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.04</size>
+          </box>
+        </geometry>
+        <material>
+            <ambient>1 0.74 0 1</ambient>
+            <diffuse>1 0.74 0 1</diffuse>
+            <specular>1 0.74 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Chassis_MoteurProf3" type="fixed">
+      <parent>Chassis</parent>
+      <child>MoteurProf3</child>
+    </joint>
+
+    <link name="MoteurProf4">
+      <pose relative_to="Chassis">0 -0.2 0.3 0 1.57 0</pose>
+      <inertial>
+        <mass>0.2</mass>
+        <inertia>
+          <ixx>1.16E-3</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>1.16E-3</iyy>
+          <iyz>0</iyz>
+          <izz>2E-3</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.04</size>
+          </box>
+        </geometry>
+      </collision> 
+
+      <visual name= "visual">
+        <geometry>
+          <box>
+            <size>0.1 0.1 0.04</size>
+          </box>
+        </geometry>
+        <material>
+            <ambient>1 0.74 0 1</ambient>
+            <diffuse>1 0.74 0 1</diffuse>
+            <specular>1 0.74 0 1</specular>
+        </material>
+      </visual>
+    </link>
+
+    <joint name="Chassis_MoteurProf4" type="fixed">
+      <parent>Chassis</parent>
+      <child>MoteurProf4</child>
+    </joint>
+
+    <plugin
+      filename="gz-sim-odometry-publisher-system"
+      name="gz::sim::systems::OdometryPublisher">
+      <dimensions>3</dimensions>
+    </plugin>
+
+  </model>
+</sdf>

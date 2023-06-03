@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<sdf version="1.6">
+  <model name="BoueeBlanche_v1">
+    <static>true</static>
+    <link name="BoueeBlanche">
+      <inertial>
+        <mass>0.01</mass>
+        <inertia>
+          <ixx>4.17E-6</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>4.17E-6</iyy>
+          <iyz>0</iyz>
+          <izz>4.17E-6</izz>
+        </inertia>
+      </inertial>
+
+      <collision name="collision">
+        <geometry>
+          <sphere>
+            <radius>0.06</radius>
+          </sphere>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+          <sphere>
+            <radius>0.06</radius>
+          </sphere>
+        </geometry>
+        <material>
+            <ambient>1 0 0 1</ambient>
+            <diffuse>1 0 0 1</diffuse>
+            <specular>1 0 0 1</specular>
+        </material>
+      </visual>
+    </link>
+  </model>
+</sdf>
