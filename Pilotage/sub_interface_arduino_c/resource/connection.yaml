@@ -1,0 +1,6 @@
+/**:
+  ros__parameters:
+
+    #Connection parameters
+    Port: "/dev/ttyUSB0"
+    Baud_Rate: 9600
