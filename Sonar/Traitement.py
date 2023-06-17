@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def Traitement_Sonar(sonar_data, Grad, Dist_Unit,limite,Nombre,NombreAngle,DEBUG_AUTOGAIN_OVERRIDE=False,AUTOGAIN_FORCE=False):
+def Traitement_Sonar(sonar_data,Dist_Unit,limite,Nombre,NombreAngle,DEBUG_AUTOGAIN_OVERRIDE=False,AUTOGAIN_FORCE=False):
 
     D_max= 250 # Valeur de saturation pour l'autogain
 
@@ -52,7 +52,7 @@ def Traitement_Sonar(sonar_data, Grad, Dist_Unit,limite,Nombre,NombreAngle,DEBUG
 
     #------------- Fin autogain
 
-    Pres = np.zeros((Grad, 1024))
+    Pres = np.zeros((NombreAngle, 1024))
     Z = np.ones((Res_num.shape[0],)) + 1j*np.ones((Res_num.shape[0],))
     Sortie = np.zeros((Res_num.shape[0],)) 
 
@@ -70,7 +70,7 @@ def Traitement_Sonar(sonar_data, Grad, Dist_Unit,limite,Nombre,NombreAngle,DEBUG
     for i in range(Res_num.shape[0]):
         for k in range(200, Res_num.shape[1]):
             if Pres[i-1, k-1] == 1:
-                Z[i] = -np.cos(i*np.pi*2/Grad)*1j*Dist_Unit*k - np.sin(i*np.pi*2/Grad)*k*Dist_Unit
+                Z[i] = -np.cos(i*np.pi*2/NombreAngle)*1j*Dist_Unit*k - np.sin(i*np.pi*2/NombreAngle)*k*Dist_Unit
                 compteur += 1
                 Sortie[i] = k*Dist_Unit
                 break
