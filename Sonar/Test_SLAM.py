@@ -9,10 +9,8 @@ from sklearn.neighbors import NearestNeighbors
 from Clustering import Clustering_Bassin_Polaire,Clustering_Bassin_Carthésien
 from RotationScann import rotationscann
 from Positionnement import DéplacerLeCentre
+from Coordonnée import Coodonnée_Nautilus
 from Slam import slam
-
-
-
 
 path = "En_Bas.bin"
 
@@ -61,7 +59,7 @@ OrienterHaut=rotationscann(180,Sortie_Haut)
 TaillePiscineX=2                                            # A Adapter au concour peut etre déterminer grace a un premier scann large
 TaillePiscineY=1
 
-
+Coodonnée_Nautilus(OrienterBas)
 
 Mur_Bas,Cluster_Bas,Obstacle_Bas=Clustering_Bassin_Polaire(Sortie_Bas)
 Mur_Haut,Cluster_Haut,Obstacle_Haut=Clustering_Bassin_Polaire(Sortie_Haut)
