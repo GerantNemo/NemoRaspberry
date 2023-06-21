@@ -3,6 +3,17 @@ import matplotlib.pyplot as plt
 
 def Traitement_Sonar(sonar_data,Dist_Unit,limite,Nombre,NombreAngle,DEBUG_AUTOGAIN_OVERRIDE=False,AUTOGAIN_FORCE=False):
 
+    """Cette fonction permet d'éliminer les élements qu'il nous semble pas interressant pour notre sous marin:
+
+    sonar_data: Matrice des donnée du scann que l'on aimerai traiter
+    Dist_Unit: connaitre la distance entre chaque point renvoyer par le sonar. C'est savoir sur les 1024 points d'une ligne comment 
+    chaque point est écarté
+    limite: Distance à la quel un point doit avoir des voisins pour etre considérer comme valide
+    Nombre: le nombre de voisin que l'on doit prendre en compte dans la distance "limite" pour que le poitn soit valide
+    NombreAngle: Nombre de gradiant effectuer par le sonar (en générale 400 pour 1 tour)
+    Les valeurs d'apres sont des test pour faire marcher un auto gain et automatiser les valeur de limite mais pour l'instant ca ne marche pas
+    """
+
     D_max= 250 # Valeur de saturation pour l'autogain
 
     
@@ -100,6 +111,18 @@ def Traitement_Sonar(sonar_data,Dist_Unit,limite,Nombre,NombreAngle,DEBUG_AUTOGA
 
 
 def Traitement_Sonar_file(file, Grad, Dist_Unit,limite,Nombre):
+
+    """Meme phylosiphie que au dessus masi qui prend en entrée un chemin d'acces du fichhier binaire
+
+    file: Chemin d'acces du fichier de sonar qu'on aimerai traiter
+    Grad: Nombre de gradiant effectuer par le sonar (en générale 400 pour 1 tour)
+    Dist_Unit: connaitre la distance entre chaque point renvoyer par le sonar. C'est savoir sur les 1024 points d'une ligne comment 
+    chaque point est écarté
+    limite: Distance à la quel un point doit avoir des voisins pour etre considérer comme valide
+    Nombre: le nombre de voisin que l'on doit prendre en compte dans la distance "limite" pour que le poitn soit valide
+    Les valeurs d'apres sont des test pour faire marcher un auto gain et automatiser les valeur de limite mais pour l'instant ca ne marche pas
+    """
+
     Res_num = np.fromfile(file)
     #print(Res_num)
     Pres = np.zeros((Grad, 1024))

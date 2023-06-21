@@ -1,19 +1,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from numpy.linalg import norm
 import cv2
+
+from numpy.linalg import norm
 from sklearn.linear_model import RANSACRegressor
 
 
 def Coordonne_Main_Obstacle(MainObstacle):
+    """ à partir du cluster main obstacle trouvée via la fct clustering on renvoie en radian l'angle entre l'avant 
+    du sous marin et l'obstacle et la distance les séparants"""
     Centre=np.mean(MainObstacle,axis=0)
     Distance=norm(Centre)
     Angle=np.arctan2(Centre[1], Centre[0])-np.pi
     return Angle, Distance
 
 def Coodonnée_Nautilus(Scann):            #A faire intervenir apres l'orientation et avant le placement
-                        
+    """ Permet de placer la position du sous marin dans le bassin en utilisant les murs comme reférences
+    Scann: Clustering des mur réaliser grace a la fonction cluster"""                    
     #Pour etre sur de l'avoire en carthésien
     ScannCarthésien=np.zeros((len(Scann),2))       
     for i in range(len(Scann)):

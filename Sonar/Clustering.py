@@ -1,19 +1,19 @@
-
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from sklearn import cluster, datasets
+
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
-from sklearn.neighbors import NearestNeighbors
-
-
-# pour les "widgets" Jupyter permettant de régler les valeurs de variables 
-#import nbimporter
-#from AffichargeInteractif import Affichage_Interactif
-import ipywidgets as widgets  
-from ipywidgets import interact
 
 def Clustering_Bassin_Polaire(Sortie):
+
+    """Fonction permetant de séparer les mur et les différent obstacle
+
+    Sortie: Scann traiter contenant des donner en géométrie polaire
+
+    Pensée à potentillement adapater les variable:
+    nb_cluster: représente le nombre de cluster que l'on cherche dans le scann
+    Taille_Mur= le nombre de point d'un cluster pour qu'il soit considéré comme un mur"""
+
     X=np.zeros((len(Sortie),2))
     nb_cluster=8                    #Variable à adapter au concour
     Taille_Mur=15
@@ -79,6 +79,15 @@ def Clustering_Bassin_Polaire(Sortie):
 
 
 def Clustering_Bassin_Carthésien(Sortie):           #Sortie un vecteur avec 2 ligne [X,Y]
+
+    """Fonction permetant de séparer les mur et les différent obstacle
+
+    Sortie: Scann traiter contenant des donner en géométrie carthésienne
+
+    Pensée à potentillement adapater les variable:
+    nb_cluster: représente le nombre de cluster que l'on cherche dans le scann
+    Taille_Mur= le nombre de point d'un cluster pour qu'il soit considéré comme un mur"""
+
     X=np.transpose(Sortie)
     nb_cluster=8                    #Variable à adapter au concour
     Taille_Mur=15

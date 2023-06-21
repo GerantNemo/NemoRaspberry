@@ -1,11 +1,11 @@
-from Traitement import Traitement_Sonar
+
 import numpy as np
 import matplotlib.pyplot as plt
 import math
 import os #Incompatibilité avec linux possible ? tester une fonction plus robuste
-from sklearn import cluster, datasets
+
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
-from sklearn.neighbors import NearestNeighbors
+from Traitement import Traitement_Sonar
 from Clustering import Clustering_Bassin_Polaire,Clustering_Bassin_Carthésien
 from RotationScann import rotationscann
 from Positionnement import DéplacerLeCentre
@@ -32,6 +32,7 @@ path = "En_Haut.bin"
 
 file= open(path,"rb")
 
+help(Traitement_Sonar)
 
 data = file.read()
 Haut = []

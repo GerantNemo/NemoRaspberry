@@ -1,10 +1,15 @@
 from brping import Ping360
-import time
 from datetime import datetime
+
+import time
 import numpy as np
 import os
 
-def ScannSonar(Distance_Point):
+def ScannSonar():
+    """réalise un scann du sonar.
+    Attention de bien connecter le sonar pour le port com3 ou modifier le code vers le bon port com
+    Ce code retourne une matrice directement dans le code principale"""
+
     myPing = Ping360()
     myPing.connect_serial("COM3", 115200)
 
