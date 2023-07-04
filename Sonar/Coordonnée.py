@@ -19,10 +19,13 @@ def Coodonnée_Nautilus(Scann):            #A faire intervenir apres l'orientati
     """ Permet de placer la position du sous marin dans le bassin en utilisant les murs comme reférences
     Scann: Clustering des mur réaliser grace a la fonction cluster"""                    
     #Pour etre sur de l'avoire en carthésien
-    ScannCarthésien=np.zeros((len(Scann),2))       
-    for i in range(len(Scann)):
-        ScannCarthésien[i,0]=Scann[i]*math.cos(i*2*math.pi/400)
-        ScannCarthésien[i,1]=Scann[i]*math.sin(i*2*math.pi/400)
+    ScannCarthésien=np.zeros((len(Scann),2))
+    if Scann.shape[1]==1:
+        for i in range(len(Scann)):
+            ScannCarthésien[i,0]=Scann[i]*math.cos(i*2*math.pi/400)
+            ScannCarthésien[i,1]=Scann[i]*math.sin(i*2*math.pi/400)
+    else:
+        ScannCarthésien=Scann
     
     
     # Définir les paramètres de RANSAC
@@ -31,6 +34,8 @@ def Coodonnée_Nautilus(Scann):            #A faire intervenir apres l'orientati
     distance_threshold = 0.05  # Distance seuil pour considérer un point comme faisant partie d'une ligne
 
     # Appliquer RANSAC
+    # Normalement on peut faire une regression linéaire quartier par quartier pour trouver les lignes puis comparer les equation de droite pour voir les meilleur
+
     ransac = RANSACRegressor(min_samples=min_samples,
                             residual_threshold=distance_threshold,
                             max_trials=max_trials)

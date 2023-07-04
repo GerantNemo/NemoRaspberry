@@ -14,6 +14,8 @@ def Traitement_Sonar(sonar_data,Dist_Unit,limite,Nombre,NombreAngle,DEBUG_AUTOGA
     Les valeurs d'apres sont des test pour faire marcher un auto gain et automatiser les valeur de limite mais pour l'instant ca ne marche pas
     """
 
+    #Partis de timoter sur l'autogain mais marche aps pour l'instant
+
     D_max= 250 # Valeur de saturation pour l'autogain
 
     
@@ -165,6 +167,7 @@ def Traitement_Sonar_file(file, Grad, Dist_Unit,limite,Nombre):
     SortieBonSens = np.zeros((compteur,))
     for i in range(compteur-1):
         SortieBonSens[i]=Sortie[compteur-i]
+        
     return SortieBonSens      
 
 

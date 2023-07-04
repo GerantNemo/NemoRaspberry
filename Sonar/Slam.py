@@ -19,7 +19,11 @@ def slam(Path1,Path2,Orientation1,Orientation2,Pos1,Pos2):
 
   Path2=Chemin d'acces vers le deuxième scann
   Orientation2=dans quel sens était orienter le robot quand il a faire le scann 2
-  Pos2=A quel position le robot a fait le scann 2    
+  Pos2=A quel position le robot a fait le scann 2   
+
+
+  Les scann en carthésien sont toujours un point part ligne et coorodnée X dans la premier colonne et Y dans la deuxieme
+  Les scann carthésien une fois traités sont un vecteur ligne ou l'indice représente l'angle en gradiant et la valeur la distance du point par rapport au centre 
   """
 
   #Ouverture des fichier et refermer l'addresse apres

@@ -6,11 +6,13 @@ import os #Incompatibilité avec linux possible ? tester une fonction plus robus
 
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from Traitement import Traitement_Sonar
-from Clustering import Clustering_Bassin_Polaire,Clustering_Bassin_Carthésien
+from Clustering import Clustering_Bassin,Clustering_Bassin
 from RotationScann import rotationscann
 from Positionnement import DéplacerLeCentre
 from Coordonnée import Coodonnée_Nautilus
 from Slam import slam
+
+
 
 path = "En_Bas.bin"
 
@@ -60,18 +62,19 @@ OrienterHaut=rotationscann(180,Sortie_Haut)
 TaillePiscineX=2                                            # A Adapter au concour peut etre déterminer grace a un premier scann large
 TaillePiscineY=1
 
-Coodonnée_Nautilus(OrienterBas)
 
-Mur_Bas,Cluster_Bas,Obstacle_Bas=Clustering_Bassin_Polaire(Sortie_Bas)
-Mur_Haut,Cluster_Haut,Obstacle_Haut=Clustering_Bassin_Polaire(Sortie_Haut)
+Mur_Bas,Cluster_Bas,Obstacle_Bas=Clustering_Bassin(Sortie_Bas)
+Mur_Haut,Cluster_Haut,Obstacle_Haut=Clustering_Bassin(Sortie_Haut)
 
+Coodonnée_Nautilus(Mur_Bas)
 
 PlacerBas=DéplacerLeCentre(OrienterBas,[0.6,0])               # Les valeur des centre sont à déterminer soit par le sonar soit pas l'imu
 PlacerHaut=DéplacerLeCentre(OrienterHaut,[-0.6,0])
 
-Map=np.concatenate((PlacerBas,PlacerHaut),axis=1)
+Map=np.concatenate((PlacerBas,PlacerHaut),axis=0)
 plt.figure()
-plt.scatter(Map[0,:],Map[1,:])
-Mur,Cluster,Obstacle=Clustering_Bassin_Carthésien(Map)
+plt.scatter(Map[:,0],Map[:,1])
+Mur,Cluster,Obstacle=Clustering_Bassin(Map)
+plt.scatter(Mur[:,0],Mur[:,1])
 plt.show()
 

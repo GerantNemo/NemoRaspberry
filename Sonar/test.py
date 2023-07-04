@@ -7,7 +7,7 @@ from sklearn import cluster, datasets
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from sklearn.neighbors import NearestNeighbors
 from Clustering import Clustering_Bassin
-from Coordonnée import Coordonne
+from Coordonnée import Coordonne_Main_Obstacle,Coodonnée_Nautilus
 
 
 # pour les "widgets" Jupyter permettant de régler les valeurs de variables 
@@ -52,8 +52,8 @@ fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 ax.scatter(theta, Sortie,s=5)
 
 Mur,Cluster,Obstacle=Clustering_Bassin(Sortie)
-
-Angle,Disance=Coordonne(Obstacle)
+Coodonnée_Nautilus(Mur)
+Angle,Disance=Coordonne_Main_Obstacle(Obstacle)
 
 print(Angle)
 print(Disance)
