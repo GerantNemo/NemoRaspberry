@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(sub_control)
+project(sub_teleop_play)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
@@ -12,30 +12,17 @@ find_package(ament_cmake REQUIRED)
 # find_package(<dependency> REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
-find_package(trajectory_msgs REQUIRED)
-find_package(tf2 REQUIRED)
-find_package(tf2_ros REQUIRED)
-find_package(tf2_geometry_msgs REQUIRED)
 
 include_directories(include)
 
-add_executable(position_controller_node src/position_controller_node.cpp)
-ament_target_dependencies(position_controller_node rclcpp std_msgs nav_msgs geometry_msgs tf2 tf2_ros tf2_geometry_msgs)
-
-add_executable(velocity_controller_node src/velocity_controller_node.cpp)
-ament_target_dependencies(velocity_controller_node rclcpp std_msgs nav_msgs geometry_msgs trajectory_msgs tf2 tf2_ros tf2_geometry_msgs)
+add_executable(teleop_twist_playstation src/teleop_twist_playstation.cpp)
+ament_target_dependencies(teleop_twist_playstation rclcpp std_msgs sensor_msgs geometry_msgs nav_msgs)
 
 install(TARGETS
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin
-)
-
-install(TARGETS
-  position_controller_node
-  velocity_controller_node
+  teleop_twist_playstation
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)

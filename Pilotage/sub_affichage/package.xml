@@ -1,18 +1,22 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>sub_teleop</name>
+  <name>sub_affichage</name>
   <version>0.0.0</version>
-  <description>Generic keyboard teleop for twist robots.</description>
+  <description>TODO: Package description</description>
   <maintainer email="aymeric@todo.todo">aymeric</maintainer>
-  <license>BSD</license>
+  <license>TODO: License declaration</license>
 
-  <author>Graylin Trevor Jay</author>
-
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>time</exec_depend>
+  <exec_depend>datetime</exec_depend>
+  <exec_depend>numpy</exec_depend>
+  <exec_depend>matplotlib</exec_depend>
+  <exec_depend>scipy</exec_depend>
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>nav_msgs</exec_depend>
-  <exec_depend>rclpy</exec_depend>
+
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
