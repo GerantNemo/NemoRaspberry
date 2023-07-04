@@ -5,8 +5,11 @@ import rclpy
 
 from geometry_msgs.msg import Twist
 
-import sys, select, termios, tty
+import sys, select, termios, tty, pty
 
+#En lançant d'un launch, le terminal ne peut pas etre utilise pour la saisie clavier ; creation d'un autre terminal
+#(pid, fd) = pty.fork()
+#settings = termios.tcgetattr(fd)
 settings = termios.tcgetattr(sys.stdin)
 
 msg = """

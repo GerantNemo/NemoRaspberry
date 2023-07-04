@@ -50,35 +50,35 @@ class SimpleVelocityControllerNode : public rclcpp::Node
         this->get_parameter("PWM_max", PWM_min);
         this->get_parameter("PWM_min", PWM_max);
         
-        this->get_parameter("vx_PID/P", vx_KP);
-        this->get_parameter("vx_PID/I", vx_KI);
-        this->get_parameter("vx_PID/I_max", vx_KI_max);
-        this->get_parameter("vx_PID/D", vx_KD);
+        this->get_parameter("vx_PID.P", vx_KP);
+        this->get_parameter("vx_PID.I", vx_KI);
+        this->get_parameter("vx_PID.I_max", vx_KI_max);
+        this->get_parameter("vx_PID.D", vx_KD);
 
-        this->get_parameter("vy_PID/P", vy_KP);
-        this->get_parameter("vy_PID/I", vy_KI);
-        this->get_parameter("vy_PID/I_max", vy_KI_max);
-        this->get_parameter("vy_PID/D", vy_KD);
+        this->get_parameter("vy_PID.P", vy_KP);
+        this->get_parameter("vy_PID.I", vy_KI);
+        this->get_parameter("vy_PID.I_max", vy_KI_max);
+        this->get_parameter("vy_PID.D", vy_KD);
 
-        this->get_parameter("vz_PID/P", vz_KP);
-        this->get_parameter("vz_PID/I", vz_KI);
-        this->get_parameter("vz_PID/I_max", vz_KI_max);
-        this->get_parameter("vz_PID/D", vz_KD);
+        this->get_parameter("vz_PID.P", vz_KP);
+        this->get_parameter("vz_PID.I", vz_KI);
+        this->get_parameter("vz_PID.I_max", vz_KI_max);
+        this->get_parameter("vz_PID.D", vz_KD);
 
-        this->get_parameter("p_PID/P", p_KP);
-        this->get_parameter("p_PID/I", p_KI);
-        this->get_parameter("p_PID/I_max", p_KI_max);
-        this->get_parameter("p_PID/D", p_KD);
+        this->get_parameter("p_PID.P", p_KP);
+        this->get_parameter("p_PID.I", p_KI);
+        this->get_parameter("p_PID.I_max", p_KI_max);
+        this->get_parameter("p_PID.D", p_KD);
 
-        this->get_parameter("q_PID/P", q_KP);
-        this->get_parameter("q_PID/I", q_KI);
-        this->get_parameter("q_PID/I_max", q_KI_max);
-        this->get_parameter("q_PID/D", q_KD);
+        this->get_parameter("q_PID.P", q_KP);
+        this->get_parameter("q_PID.I", q_KI);
+        this->get_parameter("q_PID.I_max", q_KI_max);
+        this->get_parameter("q_PID.D", q_KD);
 
-        this->get_parameter("r_PID/P", r_KP);
-        this->get_parameter("r_PID/I", r_KI);
-        this->get_parameter("r_PID/I_max", r_KI_max);
-        this->get_parameter("r_PID/D", r_KD);
+        this->get_parameter("r_PID.P", r_KP);
+        this->get_parameter("r_PID.I", r_KI);
+        this->get_parameter("r_PID.I_max", r_KI_max);
+        this->get_parameter("r_PID.D", r_KD);
 
         this->get_parameter("Fx_max", Fx_max);
         this->get_parameter("Fy_max", Fy_max);
