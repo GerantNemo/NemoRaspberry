@@ -2,6 +2,7 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <cmath>
 
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2/transform_datatypes.h>
@@ -11,34 +12,105 @@
 //#include <tf2/convert.h>
 
 #include "rclcpp/rclcpp.hpp"
+#include "std_msgs/msg/int32.hpp"
 #include "std_msgs/msg/string.hpp"
+#include "std_msgs/msg/float64.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include <trajectory_msgs/msg/joint_trajectory_point.hpp>
 
-//using namespace std::chrono_literals;
+using namespace std::chrono_literals;
 using std::placeholders::_1;
+
+//rate time : 50Hz
 
 /* This example creates a subclass of Node and uses std::bind() to register a
 * member function as a callback from the timer. */
 
-class VelocityControllerNode : public rclcpp::Node
+class VelControllerNode : public rclcpp::Node
 {
   public:
-    VelocityControllerNode() : Node("velocity_controller_node"), count_(0)
+    VelControllerNode() : Node("vel_controller_node"), count_(0)
     {
-        cmd_velocity_sub_ = this->create_subscription<geometry_msgs::msg::Twist>("cmd/velocity", 10, std::bind(&VelocityControllerNode::VelControlCallback, this, _1));
-        mes_odometry_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("sub/odometry", 10, std::bind(&VelocityControllerNode::VelOdometryCallback, this, _1));
-      
-        cmd_motors_pub_ = this->create_publisher<trajectory_msgs::msg::JointTrajectoryPoint>("cmd/motors", 10);
+        //0 : cmdes de position ; 1 : cmdes de vitesse
+        cmd_mode_sub_ = this->create_subscription<std_msgs::msg::Int32>("/SousMarin/command/mode", 10, std::bind(&VelControllerNode::VelModeCallback, this, _1));
+        cmd_vel_manuel_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("/SousMarin/command/pos_vel", 10, std::bind(&VelControllerNode::VelControlManuelCallback, this, _1));
+        cmd_vel_pos_sub_ = this->create_subscription<geometry_msgs::msg::Twist>("/SousMarin/command/pos_vel_pos", 10, std::bind(&VelControllerNode::VelControlPosCallback, this, _1));
+        mes_odometry_sub_ = this->create_subscription<nav_msgs::msg::Odometry>("/model/SousMarin/odometry", 10, std::bind(&VelControllerNode::VelOdometryCallback, this, _1));
+        
+        timer_ = this->create_wall_timer(20ms, std::bind(&VelControllerNode::timer_callback, this));
+        
+        cmd_motor1_pub_ = this->create_publisher<std_msgs::msg::Float64>("/model/SousMarin/joint/CaissonPrinc_Moteur1/cmd_thrust", 10);
+        cmd_motor2_pub_ = this->create_publisher<std_msgs::msg::Float64>("/model/SousMarin/joint/CaissonPrinc_Moteur2/cmd_thrust", 10);
+        cmd_motor3_pub_ = this->create_publisher<std_msgs::msg::Float64>("/model/SousMarin/joint/CaissonPrinc_Moteur3/cmd_thrust", 10);
+        cmd_motor4_pub_ = this->create_publisher<std_msgs::msg::Float64>("/model/SousMarin/joint/CaissonPrinc_Moteur4/cmd_thrust", 10);
+        cmd_motorprof1_pub_ = this->create_publisher<std_msgs::msg::Float64>("/model/SousMarin/joint/CaissonPrinc_MoteurProf1/cmd_thrust", 10);
+        cmd_motorprof2_pub_ = this->create_publisher<std_msgs::msg::Float64>("/model/SousMarin/joint/CaissonPrinc_MoteurProf2/cmd_thrust", 10);
+        cmd_motorprof3_pub_ = this->create_publisher<std_msgs::msg::Float64>("/model/SousMarin/joint/CaissonPrinc_MoteurProf3/cmd_thrust", 10);
+        cmd_motorprof4_pub_ = this->create_publisher<std_msgs::msg::Float64>("/model/SousMarin/joint/CaissonPrinc_MoteurProf4/cmd_thrust", 10);
+
+        cmd_motors_pub_ = this->create_publisher<trajectory_msgs::msg::JointTrajectoryPoint>("/SousMarin/command/pwm", 10);
 
         InitializeParams();
     }
 
     void InitializeParams()
     {
-        last_time = rclcpp::Clock{RCL_ROS_TIME}.now().seconds();
+        last_time = rclcpp::Clock{RCL_ROS_TIME}.now();
 
+        //Declaration de parametres
+
+        this->declare_parameter("alpha", 0.79);
+        this->declare_parameter("L_m", 1.0);
+        this->declare_parameter("L_d", 0.5);
+        this->declare_parameter("Kd_m", 0.4);
+        this->declare_parameter("Kd_d", 0.4);
+        this->declare_parameter("rot_max_m", 2000.0);
+        this->declare_parameter("rot_max_d", 2000.0);
+        this->declare_parameter("PWM_0", 1500.0);
+        this->declare_parameter("PWM_max", 1100.0);
+        this->declare_parameter("PWM_min", 1900.0);
+        
+        this->declare_parameter("vx_PID.P", 1.0);
+        this->declare_parameter("vx_PID.I", 0.1);
+        this->declare_parameter("vx_PID.I_max", 1.0);
+        this->declare_parameter("vx_PID.D", 0.1);
+
+        this->declare_parameter("vy_PID.P", 1.0);
+        this->declare_parameter("vy_PID.I", 0.1);
+        this->declare_parameter("vy_PID.I_max", 1.0);
+        this->declare_parameter("vy_PID.D", 0.1);
+
+        this->declare_parameter("vz_PID.P", 1.0);
+        this->declare_parameter("vz_PID.I", 0.1);
+        this->declare_parameter("vz_PID.I_max", 1.0);
+        this->declare_parameter("vz_PID.D", 0.1);
+
+        this->declare_parameter("p_PID.P", 1.0);
+        this->declare_parameter("p_PID.I", 0.1);
+        this->declare_parameter("p_PID.I_max", 1.0);
+        this->declare_parameter("p_PID.D", 0.1);
+
+        this->declare_parameter("q_PID.P", 1.0);
+        this->declare_parameter("q_PID.I", 0.1);
+        this->declare_parameter("q_PID.I_max", 1.0);
+        this->declare_parameter("q_PID.D", 0.1);
+
+        this->declare_parameter("r_PID.P", 1.0);
+        this->declare_parameter("r_PID.I", 0.1);
+        this->declare_parameter("r_PID.I_max", 1.0);
+        this->declare_parameter("r_PID.D", 0.1);
+
+        this->declare_parameter("Fx_max", 200.0);
+        this->declare_parameter("Fy_max", 200.0);
+        this->declare_parameter("Fz_max", 200.0);
+
+        this->declare_parameter("Mx_max", 200.0);
+        this->declare_parameter("My_max", 200.0);
+        this->declare_parameter("Mz_max", 200.0);
+
+        //Recuperation des parametres
+        
         this->get_parameter("alpha", alpha);
         this->get_parameter("L_m", L_m);
         this->get_parameter("L_d", L_d);
@@ -50,35 +122,35 @@ class VelocityControllerNode : public rclcpp::Node
         this->get_parameter("PWM_max", PWM_min);
         this->get_parameter("PWM_min", PWM_max);
         
-        this->get_parameter("vx_PID/P", vx_KP);
-        this->get_parameter("vx_PID/I", vx_KI);
-        this->get_parameter("vx_PID/I_max", vx_KI_max);
-        this->get_parameter("vx_PID/D", vx_KD);
+        this->get_parameter("vx_PID.P", vx_KP);
+        this->get_parameter("vx_PID.I", vx_KI);
+        this->get_parameter("vx_PID.I_max", vx_KI_max);
+        this->get_parameter("vx_PID.D", vx_KD);
 
-        this->get_parameter("vy_PID/P", vy_KP);
-        this->get_parameter("vy_PID/I", vy_KI);
-        this->get_parameter("vy_PID/I_max", vy_KI_max);
-        this->get_parameter("vy_PID/D", vy_KD);
+        this->get_parameter("vy_PID.P", vy_KP);
+        this->get_parameter("vy_PID.I", vy_KI);
+        this->get_parameter("vy_PID.I_max", vy_KI_max);
+        this->get_parameter("vy_PID.D", vy_KD);
 
-        this->get_parameter("vz_PID/P", vz_KP);
-        this->get_parameter("vz_PID/I", vz_KI);
-        this->get_parameter("vz_PID/I_max", vz_KI_max);
-        this->get_parameter("vz_PID/D", vz_KD);
+        this->get_parameter("vz_PID.P", vz_KP);
+        this->get_parameter("vz_PID.I", vz_KI);
+        this->get_parameter("vz_PID.I_max", vz_KI_max);
+        this->get_parameter("vz_PID.D", vz_KD);
 
-        this->get_parameter("p_PID/P", p_KP);
-        this->get_parameter("p_PID/I", p_KI);
-        this->get_parameter("p_PID/I_max", p_KI_max);
-        this->get_parameter("p_PID/D", p_KD);
+        this->get_parameter("p_PID.P", p_KP);
+        this->get_parameter("p_PID.I", p_KI);
+        this->get_parameter("p_PID.I_max", p_KI_max);
+        this->get_parameter("p_PID.D", p_KD);
 
-        this->get_parameter("q_PID/P", q_KP);
-        this->get_parameter("q_PID/I", q_KI);
-        this->get_parameter("q_PID/I_max", q_KI_max);
-        this->get_parameter("q_PID/D", q_KD);
+        this->get_parameter("q_PID.P", q_KP);
+        this->get_parameter("q_PID.I", q_KI);
+        this->get_parameter("q_PID.I_max", q_KI_max);
+        this->get_parameter("q_PID.D", q_KD);
 
-        this->get_parameter("r_PID/P", r_KP);
-        this->get_parameter("r_PID/I", r_KI);
-        this->get_parameter("r_PID/I_max", r_KI_max);
-        this->get_parameter("r_PID/D", r_KD);
+        this->get_parameter("r_PID.P", r_KP);
+        this->get_parameter("r_PID.I", r_KI);
+        this->get_parameter("r_PID.I_max", r_KI_max);
+        this->get_parameter("r_PID.D", r_KD);
 
         this->get_parameter("Fx_max", Fx_max);
         this->get_parameter("Fy_max", Fy_max);
@@ -113,36 +185,58 @@ class VelocityControllerNode : public rclcpp::Node
         Mx_des = 0;
         My_des = 0;
         Mz_des = 0;
+
+        C = cos(alpha);
+        L_b = sqrt(pow(L_m, 2) + pow(L_d, 2));
     }
 
-    void CalculateVelocityControl()
+    void CalculateVelControl()
     {
-        //Convert quaternion to Euler angles
-        //tf2::quaternionMsgToTF(current_odometry.pose.pose.orientation, q);
-        tf2::fromMsg(current_odometry.pose.pose.orientation, q);
-        tf2::Matrix3x3(q).getRPY(mes_roll, mes_pitch, mes_yaw);
-        
         // Get simulator time
-        sim_time = rclcpp::Clock{RCL_ROS_TIME}.now().seconds();
-        dt = sim_time - last_time; //dt = (sim_time - last_time).toSec();
+        sim_time = rclcpp::Clock{RCL_ROS_TIME}.now();
+        dt = sim_time.seconds() - last_time.seconds(); //dt = (sim_time - last_time).toSec();
+        last_time = sim_time;
         if (dt == 0.0) return;
+        
+        //Get measured data (odometry)
+        mode = cmd_mode.data;
+        RCLCPP_INFO(this->get_logger(), "vel_mode = %lf", mode);
 
         //Get position data
         mes_vx = current_odometry.twist.twist.linear.x;
         mes_vy = current_odometry.twist.twist.linear.y;
         mes_vz = current_odometry.twist.twist.linear.z;
 
-        cmd_vx = cmd_velocity.linear.x;
-        cmd_vy = cmd_velocity.linear.y;
-        cmd_vz = cmd_velocity.linear.z;
+        //Convert quaternion to Euler angles
+        //tf2::quaternionMsgToTF(current_odometry.pose.pose.orientation, q);
+        //tf2::fromMsg(current_odometry.pose.pose.orientation, q);
+        //tf2::Matrix3x3(q).getRPY(mes_roll, mes_pitch, mes_yaw);
 
         mes_p = current_odometry.twist.twist.angular.x;
         mes_q = current_odometry.twist.twist.angular.y;
         mes_r = current_odometry.twist.twist.angular.z;
 
-        cmd_p = cmd_velocity.angular.x;
-        cmd_q = cmd_velocity.angular.y;
-        cmd_r = cmd_velocity.angular.z;
+        //vitesses (utilisation de vx, vy, vz en mode 1)
+        if(mode == 0)
+        {
+          cmd_vx = cmd_vel_pose.linear.x;
+          cmd_vy = cmd_vel_pose.linear.y;
+          cmd_vz = cmd_vel_pose.linear.z;
+
+          cmd_p = cmd_vel_pose.angular.x;
+          cmd_q = cmd_vel_pose.angular.y;
+          cmd_r = cmd_vel_pose.angular.z;
+        }
+        else
+        {
+          cmd_vx = cmd_vel_manuel.twist.twist.linear.x;
+          cmd_vy = cmd_vel_manuel.twist.twist.linear.y;
+          cmd_vz = cmd_vel_manuel.twist.twist.linear.z;
+
+          cmd_p = cmd_vel_manuel.twist.twist.angular.x;
+          cmd_q = cmd_vel_manuel.twist.twist.angular.y;
+          cmd_r = cmd_vel_manuel.twist.twist.angular.z;
+        }
 
         //vx PID
         vx_er = cmd_vx - mes_vx;
@@ -155,6 +249,9 @@ class VelocityControllerNode : public rclcpp::Node
         Fx_des = (cp + ci +cd);
         Fx_des = limit(Fx_des, (-1)*Fx_max, Fx_max);
         last_vx = mes_vx;
+
+        //RCLCPP_INFO(this->get_logger(), "cmd_vx = %lf ,mes_vx = %lf, vx_er = %lf ,vx_KP = %lf", cmd_vx, mes_vx, vx_er, vx_KP);
+        //RCLCPP_INFO(this->get_logger(), "cp = %lf ,ci = %lf ,cd = %lf", cp, ci, cd);
 
         //vy PID
         vy_er = cmd_vy - mes_vy;
@@ -217,44 +314,50 @@ class VelocityControllerNode : public rclcpp::Node
         Mz_des = (cp + ci + cd);
         Mz_des = limit(Mz_des, (-1)*Mz_max, Mz_max);
 
-        //x-y command
+        //Fx_des = 0;
+        //Fy_des = 0;
+        //Mz_des = -10;
 
-        double Fx_1, Fy_1;
+        //Mixage
 
-        //Conversion from global frame to body frame
-        Fx_1 = Fx_des * cos(mes_yaw) + Fy_des * sin(mes_yaw);
-        Fy_1 = (-1) * Fx_des * sin(mes_yaw) + Fy_des * cos(mes_yaw);
+        F1 = (1.0/4.0) * (Fx_des/C + Fy_des/C + Mz_des/L_b); //Moteur principal avant droit
+        F2 = (1.0/4.0) * (Fx_des/C - Fy_des/C + Mz_des/L_b); //Moteur principal arriere droit
+        F3 = (1.0/4.0) * (Fx_des/C + Fy_des/C - Mz_des/L_b); //Moteur principal arriere gauche
+        F4 = (1.0/4.0) * (Fx_des/C - Fy_des/C - Mz_des/L_b); //Moteur principal avant gauche
 
-        F1 = (Fx_1 * cos(alpha) + Fy_1 * sin(alpha))/2 + Mz_des/(4*L_m);
-        F2 = ((-1) * Fx_1 * sin(alpha) + Fy_1 * cos(alpha))/2 + Mz_des/(4*L_m);
-        F3 = (Fx_1 * cos(alpha) + Fy_1 * sin(alpha))/2 - Mz_des/(4*L_m);
-        F4 = ((-1) * Fx_1 * sin(alpha) + Fy_1 * cos(alpha))/2 - Mz_des/(4*L_m);
+        F5 = (-1.0/4.0) * (Fz_des - Mx_des/L_d - My_des/L_d); //Moteur de profondeur avant droit
+        F6 = (-1.0/4.0) * (Fz_des - Mx_des/L_d + My_des/L_d); //Moteur de profondeur arriere droit
+        F7 = (-1.0/4.0) * (Fz_des + Mx_des/L_d + My_des/L_d); //Moteur de profondeur arriere gauche
+        F8 = (-1.0/4.0) * (Fz_des + Mx_des/L_d - My_des/L_d); //Moteur de profondeur avant gauche
 
-        F5 = Fz_des/4 + Mx_des/(4*L_d) + My_des/(4*L_d);
-        F6 = Fz_des/4 + Mx_des/(4*L_d) - My_des/(4*L_d);
-        F7 = Fz_des/4 - Mx_des/(4*L_d) - My_des/(4*L_d);
-        F8 = Fz_des/4 - Mx_des/(4*L_d) + My_des/(4*L_d);
+        F1 = 0.0; //20.0;
+        F2 = 0.0; //20.0;
+        F3 = 0.0; //20.0;
+        F4 = 0.0; //20.0;
+        
+        //F5 = 0.0; //10.0;
+        //F6 = 0.0; //10.0;
+        //F7 = 0.0; //10.0;
+        //F8 = 0.0; //10.0;
 
-        cmd_motors.effort.clear();
-
-        cmd_motors.effort.push_back(F1); //Moteur principal avant droit
-        cmd_motors.effort.push_back(F2); //Moteur principal arriere droit
-        cmd_motors.effort.push_back(F3); //Moteur principal arriere gauche
-        cmd_motors.effort.push_back(F4); //Moteur principal avant gauche
-        cmd_motors.effort.push_back(F5); //Moteur de profondeur avant droit
-        cmd_motors.effort.push_back(F6); //Moteur de profondeur arriere droit
-        cmd_motors.effort.push_back(F7); //Moteur de profondeur arriere gauche
-        cmd_motors.effort.push_back(F8); //Moteur de profondeur avant gauche
-
+        cmd_motor1.data = F1;
+        cmd_motor2.data = F2;
+        cmd_motor3.data = F3;
+        cmd_motor4.data = F4;
+        cmd_motorprof1.data = F5;
+        cmd_motorprof2.data = F6;
+        cmd_motorprof3.data = F7;
+        cmd_motorprof4.data = F8;
+        
         //Conversion in PWM
         speed_motor1 = (sqrt(F1/Kd_m) * sign(F1)) * (PWM_max-PWM_0)/rot_max_m + PWM_0;
-        speed_motor1 = (sqrt(F2/Kd_m) * sign(F2)) * (PWM_max-PWM_0)/rot_max_m + PWM_0;
-        speed_motor1 = (sqrt(F3/Kd_m) * sign(F3)) * (PWM_max-PWM_0)/rot_max_m + PWM_0;
-        speed_motor1 = (sqrt(F4/Kd_m) * sign(F4)) * (PWM_max-PWM_0)/rot_max_m + PWM_0;
-        speed_motor1 = (sqrt(F5/Kd_m) * sign(F5)) * (PWM_max-PWM_0)/rot_max_d + PWM_0;
-        speed_motor1 = (sqrt(F6/Kd_m) * sign(F6)) * (PWM_max-PWM_0)/rot_max_d + PWM_0;
-        speed_motor1 = (sqrt(F7/Kd_m) * sign(F7)) * (PWM_max-PWM_0)/rot_max_d + PWM_0;
-        speed_motor1 = (sqrt(F8/Kd_m) * sign(F8)) * (PWM_max-PWM_0)/rot_max_d + PWM_0;
+        speed_motor2 = (sqrt(F2/Kd_m) * sign(F2)) * (PWM_max-PWM_0)/rot_max_m + PWM_0;
+        speed_motor3 = (sqrt(F3/Kd_m) * sign(F3)) * (PWM_max-PWM_0)/rot_max_m + PWM_0;
+        speed_motor4 = (sqrt(F4/Kd_m) * sign(F4)) * (PWM_max-PWM_0)/rot_max_m + PWM_0;
+        speed_motor5 = (sqrt(F5/Kd_m) * sign(F5)) * (PWM_max-PWM_0)/rot_max_d + PWM_0;
+        speed_motor6 = (sqrt(F6/Kd_m) * sign(F6)) * (PWM_max-PWM_0)/rot_max_d + PWM_0;
+        speed_motor7 = (sqrt(F7/Kd_m) * sign(F7)) * (PWM_max-PWM_0)/rot_max_d + PWM_0;
+        speed_motor8 = (sqrt(F8/Kd_m) * sign(F8)) * (PWM_max-PWM_0)/rot_max_d + PWM_0;
 
         cmd_motors.velocities.clear();
 
@@ -266,6 +369,16 @@ class VelocityControllerNode : public rclcpp::Node
         cmd_motors.velocities.push_back(speed_motor6);
         cmd_motors.velocities.push_back(speed_motor7);
         cmd_motors.velocities.push_back(speed_motor8);
+
+        RCLCPP_INFO(this->get_logger(), "mes_vx = %lf ,mes_vy = %lf ,mes_vz = %lf", mes_vx, mes_vy, mes_vz);
+        RCLCPP_INFO(this->get_logger(), "cmd_vx = %lf ,cmd_vy = %lf ,cmd_vz = %lf", cmd_vx, cmd_vy, cmd_vz);
+        /*RCLCPP_INFO(this->get_logger(), "mes_p = %lf ,mes_q = %lf ,mes_r = %lf", mes_p, mes_q, mes_r);
+        RCLCPP_INFO(this->get_logger(), "cmd_p = %lf ,cmd_q = %lf ,cmd_r = %lf", cmd_p, cmd_q, cmd_r);*/
+        RCLCPP_INFO(this->get_logger(), "Fx_des = %lf ,Fy_des = %lf ,Fz_des = %lf", Fx_des, Fy_des, Fz_des);
+        RCLCPP_INFO(this->get_logger(), "Mx_des = %lf ,My_des = %lf ,Mz_des = %lf", Mx_des, My_des, Mz_des);
+        /*RCLCPP_INFO(this->get_logger(), "F1 = %lf ,F2 = %lf ,F3 = %lf ,F4 = %lf", F1, F2, F3, F4);
+        RCLCPP_INFO(this->get_logger(), "F5 = %lf ,F6 = %lf ,F7 = %lf ,F8 = %lf", F5, F6, F7, F8);*/
+
     }
 
     double limit( double in, double min, double max)
@@ -286,11 +399,36 @@ class VelocityControllerNode : public rclcpp::Node
 
   private:
 
-    void VelControlCallback(const geometry_msgs::msg::Twist& twist_msg)
+    void timer_callback()
     {
-        cmd_velocity = twist_msg;
-        CalculateVelocityControl();
-        cmd_motors_pub_->publish(cmd_motors); 
+        CalculateVelControl();
+
+        cmd_motor1_pub_->publish(cmd_motor1);
+        cmd_motor2_pub_->publish(cmd_motor2);
+        cmd_motor3_pub_->publish(cmd_motor3);
+        cmd_motor4_pub_->publish(cmd_motor4);
+
+        cmd_motorprof1_pub_->publish(cmd_motorprof1);
+        cmd_motorprof2_pub_->publish(cmd_motorprof2);
+        cmd_motorprof3_pub_->publish(cmd_motorprof3);
+        cmd_motorprof4_pub_->publish(cmd_motorprof4);
+
+        cmd_motors_pub_->publish(cmd_motors);
+    }
+    
+    void VelModeCallback(const std_msgs::msg::Int32& int_msg)
+    {
+        cmd_mode = int_msg;
+    }
+    
+    void VelControlManuelCallback(const nav_msgs::msg::Odometry& odometry_msg)
+    {
+        cmd_vel_manuel = odometry_msg;
+    }
+
+    void VelControlPosCallback(const geometry_msgs::msg::Twist& twist_msg)
+    {
+        cmd_vel_pose = twist_msg;
     }
 
     void VelOdometryCallback(const nav_msgs::msg::Odometry& odometry_msg)
@@ -300,15 +438,46 @@ class VelocityControllerNode : public rclcpp::Node
 
     size_t count_;
 
-    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_velocity_sub_;
+    //Subscribers
+    rclcpp::Subscription<std_msgs::msg::Int32>::SharedPtr cmd_mode_sub_;
+    rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr cmd_vel_manuel_sub_;
+    rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_pos_sub_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr mes_odometry_sub_;
+
+    //Publishers
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr cmd_motor1_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr cmd_motor2_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr cmd_motor3_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr cmd_motor4_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr cmd_motorprof1_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr cmd_motorprof2_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr cmd_motorprof3_pub_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr cmd_motorprof4_pub_;
+    
     rclcpp::Publisher<trajectory_msgs::msg::JointTrajectoryPoint>::SharedPtr cmd_motors_pub_;
 
+    //Messages
+    std_msgs::msg::Int32 cmd_mode;
     nav_msgs::msg::Odometry current_odometry;
-    geometry_msgs::msg::Twist cmd_velocity;
+    nav_msgs::msg::Odometry cmd_vel_manuel;
+    geometry_msgs::msg::Twist cmd_vel_pose;
+
+    std_msgs::msg::Float64 cmd_motor1;
+    std_msgs::msg::Float64 cmd_motor2;
+    std_msgs::msg::Float64 cmd_motor3;
+    std_msgs::msg::Float64 cmd_motor4;
+    std_msgs::msg::Float64 cmd_motorprof1;
+    std_msgs::msg::Float64 cmd_motorprof2;
+    std_msgs::msg::Float64 cmd_motorprof3;
+    std_msgs::msg::Float64 cmd_motorprof4;
     trajectory_msgs::msg::JointTrajectoryPoint cmd_motors;
 
- 
+    //timer
+    rclcpp::TimerBase::SharedPtr timer_;
+
+    //General
+    double mode;
+
     //General
     tf2::Quaternion q;
     double mes_vx, mes_vy, mes_vz;
@@ -317,15 +486,16 @@ class VelocityControllerNode : public rclcpp::Node
     double cmd_vx, cmd_vy, cmd_vz;
     double cmd_p, cmd_q, cmd_r;
 
-    double last_time; //rclcpp::Time last_time;
-    double sim_time; //rclcpp::Time sim_time;
+    rclcpp::Time last_time;
+    rclcpp::Time sim_time;
     double dt;
 
     double mes_roll, mes_pitch, mes_yaw;
 
     //Motors
     double alpha; //Motor inclinaison
-    double L_m, L_d; //Leverage arms
+    double C;
+    double L_m, L_d, L_b; //Leverage arms
     double Kd_m, Kd_d; //Motors constant
     double rot_max_m, rot_max_d; //Max speed
     double PWM_0, PWM_max, PWM_min; //PWM limits
@@ -393,7 +563,7 @@ class VelocityControllerNode : public rclcpp::Node
 int main(int argc, char * argv[])
 {
   rclcpp::init(argc, argv);
-  rclcpp::spin(std::make_shared<VelocityControllerNode>());
+  rclcpp::spin(std::make_shared<VelControllerNode>());
   rclcpp::shutdown();
   return 0;
 }

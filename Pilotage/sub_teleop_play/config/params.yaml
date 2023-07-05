@@ -1,0 +1,35 @@
+/**:
+  ros__parameters:
+
+    #vitesses maximales
+    v_max:
+      vx_max: 1.0
+      vy_max: 1.0
+      vz_max: 0.05
+      psi_max: 2.0
+    
+    #axes
+    axes:
+      HG: 0
+      VG: 1
+      HD: 2
+      VD: 3
+      L2: 4
+      R2: 5
+
+    #buttons
+    buttons:
+      croix: 0
+      rond: 1
+      carre: 2
+      triangle: 3
+      playstation: 5
+      options: 6
+      joy_G: 7
+      L1: 9
+      R1: 10
+      Haut: 11
+      Bas: 12
+      Gauche: 13
+      Droite: 14
+      Centre: 15
