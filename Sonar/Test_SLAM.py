@@ -34,7 +34,6 @@ path = "En_Haut.bin"
 
 file= open(path,"rb")
 
-help(Traitement_Sonar)
 
 data = file.read()
 Haut = []
