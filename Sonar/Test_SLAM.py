@@ -65,10 +65,11 @@ TaillePiscineY=1
 Mur_Bas,Cluster_Bas,Obstacle_Bas=Clustering_Bassin(Sortie_Bas)
 Mur_Haut,Cluster_Haut,Obstacle_Haut=Clustering_Bassin(Sortie_Haut)
 
-Coodonnée_Nautilus(Mur_Bas)
+Pos_Bas=Coodonnée_Nautilus(Mur_Bas)
+Pos_Haut=Coodonnée_Nautilus(Mur_Haut)
 
-PlacerBas=DéplacerLeCentre(OrienterBas,[0.6,0])               # Les valeur des centre sont à déterminer soit par le sonar soit pas l'imu
-PlacerHaut=DéplacerLeCentre(OrienterHaut,[-0.6,0])
+PlacerBas=DéplacerLeCentre(OrienterBas,Pos_Bas)               # Les valeur des centre sont à déterminer soit par le sonar soit pas l'imu
+PlacerHaut=DéplacerLeCentre(OrienterHaut,Pos_Haut)
 
 Map=np.concatenate((PlacerBas,PlacerHaut),axis=0)
 plt.figure()

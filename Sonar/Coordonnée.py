@@ -25,7 +25,7 @@ def Coodonnée_Nautilus(Scann,Methode=1):
     """                    
     #Pour etre sur de l'avoire en carthésien
     ScannCartesien=np.zeros((len(Scann),2))
-    if Scann.shape[1]==1:
+    if np.ndim(Scann)==1:
         for i in range(len(Scann)):
             ScannCartesien[i,0]=Scann[i]*math.cos(i*2*math.pi/400)
             ScannCartesien[i,1]=Scann[i]*math.sin(i*2*math.pi/400)
@@ -74,12 +74,12 @@ def Coodonnée_Nautilus(Scann,Methode=1):
 
         plt.plot(ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)),0],PointLine)
         if i==0:                                    # Position pas juste
-            PosY=math.sin(math.atan(Line[0]))*Line[1] # egale -0.7
+            PosX=math.sin(math.atan(Line[0]))*(-Line[1]/Line[0])    #Egale -0.8
         if i==1:
-            PosX=math.sin(math.atan(Line[0]))*Line[1]   #Egale -0.4
+            PosY=math.sin(math.atan(Line[0]))*(-Line[1]/Line[0])   #Egale -0.7
     print("la position du sous marin en X est:" + str(PosX)+"\n")
     print("la position du sous marin en Y est:" + str(PosY)+"\n")
     plt.scatter(ScannCartesien[:, 0], ScannCartesien[:, 1], color='b', label='Points')
     plt.legend()
-    plt.show()
-    return()
+    plt.show(block=False)
+    return([PosX,PosY])
