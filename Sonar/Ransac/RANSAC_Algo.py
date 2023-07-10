@@ -60,7 +60,7 @@ class RansacModel:
             iterations_done = iterations_done + 1
 
             #print('# s:', iterations_done)
-            print('# n:', num_iterations)
+            #print('# n:', num_iterations)
             #print('# max_inlier_count: ', max_inlier_count)
 
         return best_model,max_inlier_count
@@ -72,25 +72,24 @@ def fit_walls(data):
     """
     Based on the data the equation that is required is: bx + c = y
     So, we need to define matrices:
-     1. A with columns [x  1]
+     1. A with columns [x  1]           Si on veux prendre des courbe suffit d'augmenter le degres de cette matrice (voir github RANSAC)
      2. P = [b c]*   (* = transpose)
      3. Y
     So that we will be finding the solution for the equation AP = Y
     """
-   
 
-    ## A = [ x  1] car oon veux une droite
+    ## A = [ x  1] car on veux une droite
     A = np.stack((x_values, np.ones((len(x_values)), dtype = int)), axis = 1)
     threshold = np.std(y_values)/2  # this can be tuned to sd/3 or sd/5 for various curves and better consistent results as a result of random sampling
     
     # Instantiating the linear least sqaure model
     linear_ls_model = LinearLeastSqaureModel()
     linear_ls_model_estimate = linear_ls_model.fit(A, y_values)
-    linear_model_y = A.dot(linear_ls_model_estimate)                    #Point des moindre carrer
+    linear_model_y = A.dot(linear_ls_model_estimate)                    # Point des moindre carrer
 
     # Instantiating the ransac model
     ransac_model = RansacModel(linear_ls_model)
     ransac_model_estimate,Max_inliner = ransac_model.fit(A, y_values, 3, threshold)     # Equation de la droite [[b],[c]]
     ransac_model_y = A.dot(ransac_model_estimate)                       # Point du ransac
 
-    return np.array(ransac_model_estimate),Max_inliner
+    return ransac_model_estimate,Max_inliner

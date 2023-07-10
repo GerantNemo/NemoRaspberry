@@ -16,9 +16,13 @@ def Coordonne_Main_Obstacle(MainObstacle):
     Angle=np.arctan2(Centre[1], Centre[0])-np.pi
     return Angle, Distance
 
-def Coodonnée_Nautilus(Scann):            #A faire intervenir apres l'orientation et avant le placement
+def Coodonnée_Nautilus(Scann,Methode=1):            
+    #A faire intervenir apres l'orientation et avant le placement
     """ Permet de placer la position du sous marin dans le bassin en utilisant les murs comme reférences
-    Scann: Clustering des mur réaliser grace a la fonction cluster"""                    
+    Scann: Clustering des mur réaliser grace a la fonction cluster.
+    La methode 0 cherche les meilleur droite en fonction de leur perpendiculariter
+    La méthode 1 cherche les meilleurs droite en fonction du plus grand nombre de point pris en compte
+    """                    
     #Pour etre sur de l'avoire en carthésien
     ScannCartesien=np.zeros((len(Scann),2))
     if Scann.shape[1]==1:
@@ -37,6 +41,8 @@ def Coodonnée_Nautilus(Scann):            #A faire intervenir apres l'orientati
     inlinerSomme=0
     LineAll=np.zeros((2,4))                    #Matrice ayant les pente de chaque droite dans la première lignet et l'absicce a l'origine dans la deuxieme ligne. Le nombre de colonne est le nombre de ligne qu'on veux'
     distance_min = float('inf')
+    inlinerMax=0
+    Line=[]
     for j in range(int((len(ScannCartesien)/4)-1)):
         # print(len(ScannCartesien))
         for i in range(0,3):
@@ -45,40 +51,35 @@ def Coodonnée_Nautilus(Scann):            #A faire intervenir apres l'orientati
                 Line0=Line[0]
             if i==1:
                 Line1=Line[0]
-            #inlinerSomme=inlinerSomme+inliers
             if i==2:
-                inlinerSomme=Line0*Line1+Line1*Line[0]
-                distance=abs(inlinerSomme+3)
-                if distance<distance_min:
-                    distance_min=distance
-                    indiceJ=j
-
-
-            # if inlinerSomme>inlinerMax[i]:
-            #     inlinerMax[i]=inliners
-            #     indiceJ[i]=j
-
-            # if i==2:
-            #     if inlinerSomme>inlinerMax:
-            #         indiceJ=j
-            #         inlinerMax=inlinerSomme
-            #     inlinerSomme=0
+                Line2=Line[0]
+            inlinerSomme=inlinerSomme+inliners
         
-            
-                
+        if Methode==0:
+            inlinerSomme=Line0*Line1+Line1*Line2
+            distance=abs(inlinerSomme+2)
+            if distance<distance_min:
+                distance_min=distance
+                indiceJ=j  
+        if Methode==1:
+            if inlinerSomme>inlinerMax:
+                indiceJ=j
+                inlinerMax=inlinerSomme
+            inlinerSomme=0
+
+    # Tracer les lignes détectées          
     for i in range(0,3):
         Line,inliners=fit_walls(ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)), :].T)
         PointLine=Line[0]*ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)),0]+Line[1]
 
         plt.plot(ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)),0],PointLine)
-    # # Tracer les lignes détectées
-    
+        if i==0:                                    # Position pas juste
+            PosY=math.sin(math.atan(Line[0]))*Line[1] # egale -0.7
+        if i==1:
+            PosX=math.sin(math.atan(Line[0]))*Line[1]   #Egale -0.4
+    print("la position du sous marin en X est:" + str(PosX)+"\n")
+    print("la position du sous marin en Y est:" + str(PosY)+"\n")
     plt.scatter(ScannCartesien[:, 0], ScannCartesien[:, 1], color='b', label='Points')
-
     plt.legend()
     plt.show()
     return()
-
-    
-
-
