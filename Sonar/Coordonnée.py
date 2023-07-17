@@ -42,7 +42,7 @@ def Coodonnée_Nautilus(Scann,Methode=1):
     LineAll=np.zeros((2,4))                    #Matrice ayant les pente de chaque droite dans la première lignet et l'absicce a l'origine dans la deuxieme ligne. Le nombre de colonne est le nombre de ligne qu'on veux'
     distance_min = float('inf')
     inlinerMax=0
-    Line=[]
+    Line=[[]]
     for j in range(int((len(ScannCartesien)/4)-1)):
         # print(len(ScannCartesien))
         for i in range(0,3):
@@ -83,3 +83,96 @@ def Coodonnée_Nautilus(Scann,Methode=1):
     plt.legend()
     plt.show(block=False)
     return([PosX,PosY])
+
+
+def Coordonnée_Mur(Scann):            
+    #A faire intervenir apres l'orientation et avant le placement
+    """ Permet de placer la position du sous marin dans le bassin en utilisant les murs comme reférences
+    Scann: Clustering des mur réaliser grace a la fonction cluster.
+    La methode 0 cherche les meilleur droite en fonction de leur perpendiculariter
+    La méthode 1 cherche les meilleurs droite en fonction du plus grand nombre de point pris en compte
+    """                    
+    #Pour etre sur de l'avoire en carthésien
+    ScannCartesien=np.zeros((len(Scann),2))
+    if np.ndim(Scann)==1:
+        for i in range(len(Scann)):
+            ScannCartesien[i,0]=Scann[i]*math.cos(i*2*math.pi/400)
+            ScannCartesien[i,1]=Scann[i]*math.sin(i*2*math.pi/400)
+    else:
+        ScannCartesien=Scann
+    
+    # Appliquer RANSAC
+    # Normalement on peut faire une regression linéaire quartier par quartier pour trouver les lignes puis comparer les equation de droite pour voir les meilleur
+   
+    indiceJ=0
+    inlinerSomme=0
+    LineAll=np.zeros((2,4))                    #Matrice ayant les pente de chaque droite dans la première lignet et l'absicce a l'origine dans la deuxieme ligne. Le nombre de colonne est le nombre de ligne qu'on veux'
+    distance_min = float('inf')
+    inlinerMax=0
+    Line=[]
+    for j in range(int((len(ScannCartesien)/4)-1)):
+        
+        for i in range(0,3):
+            Line,inliners=fit_walls(ScannCartesien[int((((i)*len(ScannCartesien)/4)+j)):int((((i+1)*len(ScannCartesien)/4)+j)), :].T)
+            inlinerSomme=inlinerSomme+inliners
+
+        if inlinerSomme>inlinerMax:
+            indiceJ=j
+            inlinerMax=inlinerSomme
+        inlinerSomme=0
+
+    # Récupérer et tracer les lignes détectées          
+    for i in range(0,3):
+        Line,inliners=fit_walls(ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)), :].T)
+        PointLine=Line[0]*ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)),0]+Line[1]
+        if i==0:
+            Line0=Line
+            Scann0=ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)), :]
+        if i==1:
+            Line1=Line
+            Scann1=ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)), :]
+        if i==2:
+            Line2=Line
+            Scann2=ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)), :]    
+        # plt.plot(ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)),0],PointLine)
+
+    # Pour savoir comment est tournée le repère on cherche le mur étant perpendiculaire aux 2 autres (car pas de mur en face)
+    # Pour cela on cherche les 2 droite parallèle via leur coeff directeur
+
+    Perpend0 = abs(Line1[0]-Line2[0])
+    Perpend1 = abs(Line0[0]-Line2[0])  
+    Perpend2 = abs(Line1[0]-Line0[0])
+    # plt.figure()
+    # plt.scatter(Scann0[:,0],Scann0[:,1])
+    # plt.title("Scann0")
+
+    # plt.figure()
+    # plt.plot(Scann1[:,0],Scann1[:,1])
+    # plt.title("Scann1")
+
+    # plt.figure()
+    # plt.plot(Scann2[:,0],Scann2[:,1])
+    # plt.title("Scann2")
+    if Perpend0 < Perpend1 and Perpend0 < Perpend2:
+        MurX = Line0
+        MurY = Line1
+        Mur3 = Line2
+    elif Perpend1 < Perpend0 and Perpend1 < Perpend2:
+        MurX = Line1
+        MurY = Line2
+        Mur3 = Line0
+    elif Perpend2 < Perpend0 and Perpend2 < Perpend1:
+        MurX = Line2
+        MurY = Line0
+        Mur3 = Line1
+
+    PosX=math.sin(math.atan(MurX[0]))*(-MurX[1]/MurX[0])    #Egale -0.8
+    PosY=math.sin(math.atan(Line1[0]))*(-Line1[1]/Line1[0])   #Egale -0.7
+
+    # print("la position du sous marin en X est:" + str(PosX)+"\n")
+    # print("la position du sous marin en Y est:" + str(PosY)+"\n")
+    # plt.scatter(ScannCartesien[:, 0], ScannCartesien[:, 1], color='b', label='Points')
+    # plt.legend()
+    # plt.show(block=False)
+    print(MurX)
+    return([PosX,PosY],[MurX,MurY,Mur3])
