@@ -40,7 +40,7 @@ def Clustering_Bassin(Sortie,Mur_Grand=0):
     
     nombre_points_par_cluster = np.bincount(clusters)
     indice_plus_grand = np.argmax(nombre_points_par_cluster)
-    print(indice_plus_grand)
+
     NbpMainObstacle=0
     mur=cluster_points[indice_plus_grand]
     if Mur_Grand!=0:

@@ -56,11 +56,8 @@ Sortie_Haut=Traitement_Sonar(Haut,Distance_point,lim,Nb_Point,NombreAngle)
 OrienterBas=rotationscann(0,Sortie_Bas)                     #Les angles devrons etre déterminer par rapport à la boussole
 OrienterHaut=rotationscann(180,Sortie_Haut)
 
-
-
 TaillePiscineX=2                                            # A Adapter au concour peut etre déterminer grace a un premier scann large
 TaillePiscineY=1
-
 
 Mur_Bas,Cluster_Bas,Obstacle_Bas=Clustering_Bassin(Sortie_Bas)
 Mur_Haut,Cluster_Haut,Obstacle_Haut=Clustering_Bassin(Sortie_Haut)

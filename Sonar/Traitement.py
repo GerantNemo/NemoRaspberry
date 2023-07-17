@@ -33,22 +33,22 @@ def Traitement_Sonar(sonar_data,Dist_Unit,limite,Nombre,NombreAngle,DEBUG_AUTOGA
 
         
     #print("DEBUG : argument_max",argument_max)
-    print("\n DEBUG : argumentmax max",argument_max.max())
+    #print("\n DEBUG : argumentmax max",argument_max.max())
 
-    if(DEBUG_AUTOGAIN_OVERRIDE==False):
+    # if(DEBUG_AUTOGAIN_OVERRIDE==False):
     
-        if(argument_max.max()>D_max):
-            print("DEBUG : AUTOGAIN ON")
-            limite=limite-0.02
-            Nombre=5
-        else :
-            print("DEBUG : AUTOGAIN OFF")
-    elif(AUTOGAIN_FORCE==True):
-            print("DEBUG : AUTOGAIN OVERRIDE FORCE ON")
-            limite=limite-0.02
-            Nombre=5
-    elif(AUTOGAIN_FORCE==False):
-        print("DEBUG : AUTOGAIN OVERRIDE FORCE OFF")
+    #     if(argument_max.max()>D_max):
+    #         #print("DEBUG : AUTOGAIN ON")
+    #         limite=limite-0.02
+    #         Nombre=5
+    #     else :
+    #         #print("DEBUG : AUTOGAIN OFF")
+    # elif(AUTOGAIN_FORCE==True):
+    #         #print("DEBUG : AUTOGAIN OVERRIDE FORCE ON")
+    #         limite=limite-0.02
+    #         Nombre=5
+    # elif(AUTOGAIN_FORCE==False):
+    #     #print("DEBUG : AUTOGAIN OVERRIDE FORCE OFF")
 
         
 
@@ -57,11 +57,11 @@ def Traitement_Sonar(sonar_data,Dist_Unit,limite,Nombre,NombreAngle,DEBUG_AUTOGA
 
     moyenne_norm= Res_num.mean()/NombreAngle #indicateur normalisé du nombre de points pour autocalcul du gain
 
-    print(moyenne_norm)
+    #print(moyenne_norm)
 
     #limite=moyenne_norm*0.1423317566
 
-    print("DEBUG : Val_lim =",limite)
+    #print("DEBUG : Val_lim =",limite)
 
     #------------- Fin autogain
 

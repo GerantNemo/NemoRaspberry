@@ -92,4 +92,6 @@ def fit_walls(data):
     ransac_model_estimate,Max_inliner = ransac_model.fit(A, y_values, 3, threshold)     # Equation de la droite [[b],[c]]
     ransac_model_y = A.dot(ransac_model_estimate)                       # Point du ransac
 
-    return ransac_model_estimate,Max_inliner
+    PourcentReussite=Max_inliner/len(data)
+
+    return ransac_model_estimate,PourcentReussite
