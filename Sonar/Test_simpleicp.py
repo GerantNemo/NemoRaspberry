@@ -51,7 +51,7 @@ Distance_point=2/1024
 Sortie_Bas=Traitement_Sonar(Bas,Distance_point,lim,Nb_Point,NombreAngle)
 Sortie_Haut=Traitement_Sonar(Haut,Distance_point,lim,Nb_Point,NombreAngle)
 
-Sortie_Bas=rotationscann(-45,Sortie_Bas)
+Sortie_Bas=rotationscann(-45,Sortie_Bas)            # Quand on tourne le scann de plus de 90° 2 ligne ce superpose
 
 Mur,Cluster,Obstacle=Clustering_Bassin(Sortie_Bas)
 Mur_Initial,Cluster_Initial,Obstacle_Intial=Clustering_Bassin(Sortie_Haut)

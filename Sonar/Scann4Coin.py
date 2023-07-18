@@ -17,7 +17,7 @@ from simpleicp import PointCloud, SimpleICP
 def Sonar4coin():
 
     myPing = Ping360()
-    myPing.connect_serial("COM12", 115200)
+    myPing.connect_serial("/dev/ttyUSB0", 115200)
 
 
     if myPing.initialize() is False:
