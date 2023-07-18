@@ -153,6 +153,8 @@ def Coordonnée_Mur(Scann):
     # plt.figure()
     # plt.plot(Scann2[:,0],Scann2[:,1])
     # plt.title("Scann2")
+
+    # MurX sur les autres non
     if Perpend0 < Perpend1 and Perpend0 < Perpend2:
         MurX = Line0
         MurY = Line1
@@ -174,5 +176,5 @@ def Coordonnée_Mur(Scann):
     # plt.scatter(ScannCartesien[:, 0], ScannCartesien[:, 1], color='b', label='Points')
     # plt.legend()
     # plt.show(block=False)
-    print(MurX)
+    # print(MurX)
     return([PosX,PosY],[MurX,MurY,Mur3])
