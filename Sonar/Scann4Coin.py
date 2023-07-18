@@ -59,4 +59,3 @@ def Sonar4coin():
 
     return(PosInit,PosCenter)
 
-posInit,posCenter=Sonar4coin()
