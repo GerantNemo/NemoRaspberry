@@ -43,19 +43,19 @@ def Clustering_Bassin(Sortie,Mur_Grand=0):
 
     NbpMainObstacle=0
     mur=cluster_points[indice_plus_grand]
+    MainObstacle = []
     if Mur_Grand!=0:
         for i in range(1, num_clusters+1):
             if nombre_points_par_cluster[i]>Taille_Mur and i!=indice_plus_grand:
                 mur=np.vstack((mur,cluster_points[i]))
     else:
         Taille_Mur=np.argmax(np.bincount(clusters))
+        
     for i in range(1, num_clusters+1):   
         if Taille_Mur>nombre_points_par_cluster[i]>NbpMainObstacle:
                 MainObstacle=cluster_points[i]
                 NbpMainObstacle=nombre_points_par_cluster[i]
            
-            
-
     # plt.figure(figsize=[10,8])
     # plt.scatter(X[:, 0], X[:, 1], s=40, c=clusters, cmap='jet')
     # plt.title('Single linkage with scipy, n_cluster='+str(nb_cluster))

@@ -72,7 +72,7 @@ def Traitement_Sonar(sonar_data,Dist_Unit,limite,Nombre,NombreAngle,DEBUG_AUTOGA
     Res_num = np.exp(Res_num)
     compteur=0
    
-    for sat in range(100, 251, 10):
+    for sat in range(0, 251, 10):
         for i in range(Res_num.shape[0]):
             for j in range(200, Res_num.shape[1]):
                 if Res_num[i, j] > np.exp(sat):

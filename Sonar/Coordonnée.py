@@ -6,6 +6,7 @@ import cv2
 from numpy.linalg import norm
 from sklearn.linear_model import RANSACRegressor
 from Ransac.RANSAC_Algo import fit_walls
+from RotationScann import rotationscannQuad
 
 
 def Coordonne_Main_Obstacle(MainObstacle):
@@ -110,10 +111,12 @@ def Coordonnée_Mur(Scann):
     distance_min = float('inf')
     inlinerMax=0
     Line=[]
-    for j in range(int((len(ScannCartesien)/4)-1)):
-        
+
+    L = len(ScannCartesien)
+
+    for j in range(int((L/3)-2)):
         for i in range(0,3):
-            Line,inliners=fit_walls(ScannCartesien[int((((i)*len(ScannCartesien)/4)+j)):int((((i+1)*len(ScannCartesien)/4)+j)), :].T)
+            Line,inliners=fit_walls(ScannCartesien[int((((i)*L/3)+j)):int((((i+1)*L/3)+j)), :].T)
             inlinerSomme=inlinerSomme+inliners
 
         if inlinerSomme>inlinerMax:
@@ -123,18 +126,18 @@ def Coordonnée_Mur(Scann):
 
     # Récupérer et tracer les lignes détectées          
     for i in range(0,3):
-        Line,inliners=fit_walls(ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)), :].T)
-        PointLine=Line[0]*ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)),0]+Line[1]
+        Line,inliners=fit_walls(ScannCartesien[int((((i)*(L)/3)+indiceJ)):int((((i+1)*(L)/3)+indiceJ)), :].T)
+        PointLine=Line[0]*ScannCartesien[int((((i)*(L)/3)+indiceJ)):int((((i+1)*(L)/3)+indiceJ)),0]+Line[1]
         if i==0:
             Line0=Line
-            Scann0=ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)), :]
+            Scann0=ScannCartesien[int((((i)*(L)/4)+indiceJ)):int((((i+1)*(L)/4)+indiceJ)), :]
         if i==1:
             Line1=Line
-            Scann1=ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)), :]
+            Scann1=ScannCartesien[int((((i)*(L)/4)+indiceJ)):int((((i+1)*(L)/4)+indiceJ)), :]
         if i==2:
             Line2=Line
-            Scann2=ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)), :]    
-        # plt.plot(ScannCartesien[int((((i)*(len(ScannCartesien))/4)+indiceJ)):int((((i+1)*(len(ScannCartesien))/4)+indiceJ)),0],PointLine)
+            Scann2=ScannCartesien[int((((i)*(L)/4)+indiceJ)):int((((i+1)*(L)/4)+indiceJ)), :]    
+        # plt.plot(ScannCartesien[int((((i)*(L)/4)+indiceJ)):int((((i+1)*(L)/4)+indiceJ)),0],PointLine)
 
     # Pour savoir comment est tournée le repère on cherche le mur étant perpendiculaire aux 2 autres (car pas de mur en face)
     # Pour cela on cherche les 2 droite parallèle via leur coeff directeur
@@ -142,34 +145,58 @@ def Coordonnée_Mur(Scann):
     Perpend0 = abs(Line1[0]-Line2[0])
     Perpend1 = abs(Line0[0]-Line2[0])  
     Perpend2 = abs(Line1[0]-Line0[0])
-    # plt.figure()
-    # plt.scatter(Scann0[:,0],Scann0[:,1])
-    # plt.title("Scann0")
 
-    # plt.figure()
-    # plt.plot(Scann1[:,0],Scann1[:,1])
-    # plt.title("Scann1")
+    Point0 = Line0[0] * Scann[:,0] + Line0[1]
+    Point1 = Line1[0] * Scann[:,0] + Line1[1]
+    Point2 = Line2[0] * Scann[:,0] + Line2[1]
 
-    # plt.figure()
-    # plt.plot(Scann2[:,0],Scann2[:,1])
-    # plt.title("Scann2")
+    plt.figure()
+    plt.scatter(Scann0[:,0],Scann0[:,1])
+    plt.plot(Scann[:,0],Point0)
+
+    plt.scatter(Scann1[:,0],Scann1[:,1])
+    plt.plot(Scann[:,0],Point1)
+ 
+    plt.scatter(Scann2[:,0],Scann2[:,1])
+    plt.plot(Scann[:,0],Point2)
+
+    plt.axis('equal')
+
+    
 
     # MurX sur les autres non
+    def MurYSelect(MurX,MurA,MurB):
+        X_IntersectionXA = (MurA[1] - MurX[1])/(MurX[0] - MurA[0])
+        X_IntersectionXB = (MurB[1] - MurX[1])/(MurX[0] - MurB[0])
+
+        Y_IntersectionXA = MurX[0] * X_IntersectionXA + MurX[1]
+        Y_IntersectionXB = MurX[0] * X_IntersectionXB + MurX[1]
+
+        Intersection=np.array([[X_IntersectionXA , Y_IntersectionXA] , [X_IntersectionXB , Y_IntersectionXB]])
+
+        for i in range(360):
+            IntersectionRot=rotationscannQuad(i,Intersection)
+            if IntersectionRot[0,0]>0 and IntersectionRot[1,0]>0:
+                if IntersectionRot[0,1]>IntersectionRot[1,1]:
+                    MurY = MurA
+                    Mur3 = MurB
+                else:
+                    MurY = MurB
+                    Mur3 = MurA
+                return MurY,Mur3
+
     if Perpend0 < Perpend1 and Perpend0 < Perpend2:
         MurX = Line0
-        MurY = Line1
-        Mur3 = Line2
+        MurY,Mur3 = MurYSelect(MurX,Line1,Line2)
     elif Perpend1 < Perpend0 and Perpend1 < Perpend2:
         MurX = Line1
-        MurY = Line2
-        Mur3 = Line0
+        MurY,Mur3 = MurYSelect(MurX,Line2,Line0)
     elif Perpend2 < Perpend0 and Perpend2 < Perpend1:
         MurX = Line2
-        MurY = Line0
-        Mur3 = Line1
+        MurY,Mur3 = MurYSelect(MurX,Line0,Line1)
 
-    PosX=math.sin(math.atan(MurX[0]))*(-MurX[1]/MurX[0])    #Egale -0.8
-    PosY=math.sin(math.atan(Line1[0]))*(-Line1[1]/Line1[0])   #Egale -0.7
+    PosY=abs(math.sin(math.atan(MurX[0]))*(-MurX[1]/MurX[0]))   #Egale -0.8
+    PosX=abs(math.sin(math.atan(MurY[0]))*(-MurY[1]/MurY[0]))   #Egale -0.7
 
     # print("la position du sous marin en X est:" + str(PosX)+"\n")
     # print("la position du sous marin en Y est:" + str(PosY)+"\n")
@@ -178,3 +205,23 @@ def Coordonnée_Mur(Scann):
     # plt.show(block=False)
     # print(MurX)
     return([PosX,PosY],[MurX,MurY,Mur3])
+
+
+    
+def OrienterIdeal(MurX,MurA,MurB):
+        X_IntersectionXA = (MurA[1] - MurX[1])/(MurX[0] - MurA[0])
+        X_IntersectionXB = (MurB[1] - MurX[1])/(MurX[0] - MurB[0])
+
+        Y_IntersectionXA = MurX[0] * X_IntersectionXA + MurX[1]
+        Y_IntersectionXB = MurX[0] * X_IntersectionXB + MurX[1]
+
+        Intersection=np.array([[X_IntersectionXA , Y_IntersectionXA] , [X_IntersectionXB , Y_IntersectionXB]])
+        for i in range(360):
+            IntersectionRot=rotationscannQuad(i,Intersection)
+            if IntersectionRot[0,1]/IntersectionRot[0,0]<1 and IntersectionRot[1,1]/IntersectionRot[1,0]<1:
+                return i
+            
+        return 45    
+        
+            
+

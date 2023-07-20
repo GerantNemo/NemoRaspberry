@@ -7,11 +7,12 @@ import os #Incompatibilité avec linux possible ? tester une fonction plus robus
 from scipy.cluster.hierarchy import dendrogram, linkage, fcluster
 from Traitement import Traitement_Sonar
 from Clustering import Clustering_Bassin,Clustering_Bassin
-from RotationScann import rotationscann
+from RotationScann import rotationscann,rotationscannQuad
 from Positionnement import DéplacerLeCentre
 from Coordonnée import Coodonnée_Nautilus,Coordonnée_Mur
 from Slam import slam
 from simpleicp import PointCloud, SimpleICP
+from statistics import mean
 
 path = "En_Bas.bin"
 
@@ -21,9 +22,9 @@ data = file.read()
 Bas = []
 
 taille = os.stat(path).st_size
-NombreAngle= int(taille/1024) #Calcule le nombre d'angle dans le fichier avec la longeur de 1024 bits
+NombreAngle1= int(taille/1024) #Calcule le nombre d'angle dans le fichier avec la longeur de 1024 bits
 
-for i in range(NombreAngle) :
+for i in range(NombreAngle1) :
     #print(data[i*1024:(i+1)*1024])
     Bas.append(data[i*1024:(i+1)*1024])
 
@@ -37,30 +38,34 @@ data = file.read()
 Haut = []
 
 taille = os.stat(path).st_size
-NombreAngle= int(taille/1024) #Calcule le nombre d'angle dans le fichier avec la longeur de 1024 bits
+NombreAngle2= int(taille/1024) #Calcule le nombre d'angle dans le fichier avec la longeur de 1024 bits
 
-for i in range(NombreAngle) :
+for i in range(NombreAngle2) :
     #print(data[i*1024:(i+1)*1024])
     Haut.append(data[i*1024:(i+1)*1024])
 
 #Voir tout
-lim=0.05
-Nb_Point=3
+lim=0.02
+Nb_Point=2
 Distance_point=2/1024
 
-Sortie_Bas=Traitement_Sonar(Bas,Distance_point,lim,Nb_Point,NombreAngle)
-Sortie_Haut=Traitement_Sonar(Haut,Distance_point,lim,Nb_Point,NombreAngle)
+Sortie_Bas = Traitement_Sonar(Bas,Distance_point,lim,Nb_Point,NombreAngle1)
+Sortie_Haut = Traitement_Sonar(Haut,Distance_point,lim,Nb_Point,NombreAngle2)
 
-Sortie_Bas=rotationscann(-45,Sortie_Bas)            # Quand on tourne le scann de plus de 90° 2 ligne ce superpose
+Sortie_Bas = rotationscann(180,Sortie_Bas)            # Quand on tourne le scann de plus de 90° 2 ligne ce superpose
+Sortie_Haut = rotationscann(45,Sortie_Haut)
 
-Mur,Cluster,Obstacle=Clustering_Bassin(Sortie_Bas)
-Mur_Initial,Cluster_Initial,Obstacle_Intial=Clustering_Bassin(Sortie_Haut)
+Mur,Cluster,Obstacle = Clustering_Bassin(Sortie_Bas)
+Mur_Initial,Cluster_Initial,Obstacle_Intial = Clustering_Bassin(Sortie_Haut)
 
 Pos,LigneMur=Coordonnée_Mur(Mur)                    #LigneMur est une liste de liste pour avoir le premier mur (equation Ax+B) on fait LigneMur[0] et le A=LigneMur[0][0]
 PosOrigine,LigneMurOrigine=Coordonnée_Mur(Mur_Initial)
 
 Point=[]
-
+print("Pos bas")
+print(Pos)
+print("Pos Haut")
+print(PosOrigine)
 
 
 Point = LigneMur[0][0] * Mur[:,0] + LigneMur[0][1] 
@@ -89,7 +94,13 @@ plt.plot(Mur[:,0],Point)
 plt.plot(Mur[:,0],Deux)
 plt.plot(Mur[:,0],Trois)
 plt.scatter(ScannBas[:,0],ScannBas[:,1])
+plt.axis('equal')
+plt.figure("Y bas")
+plt.plot(Mur[:,0],Deux)
+plt.scatter(ScannBas[:,0],ScannBas[:,1])
+plt.axis('equal')
 plt.figure("X bas")
+plt.axis('equal')
 plt.plot(Mur[:,0],Point)
 plt.scatter(ScannBas[:,0],ScannBas[:,1])
 
@@ -97,6 +108,9 @@ plt.figure("3 mur haut")
 plt.plot(Mur_Initial[:,0],XOrigine)
 plt.plot(Mur_Initial[:,0],YOrigine)
 plt.plot(Mur_Initial[:,0],TroisOrigine)
+plt.scatter(ScannHaut[:,0],ScannHaut[:,1])
+plt.figure("Y haut")
+plt.plot(Mur_Initial[:,0],YOrigine)
 plt.scatter(ScannHaut[:,0],ScannHaut[:,1])
 plt.figure("X haut")
 plt.plot(Mur_Initial[:,0],XOrigine)
