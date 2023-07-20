@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
         Scann=DéplacerLeCentre(Orienter,Pos)
 
-        plt.figure()
+        plt.figure("Scann at position" + str(Pos))
         plt.scatter(Scann[:,0],Scann[:,1])
         plt.grid(True)
         plt.title("Scann at position" + str(Pos))
